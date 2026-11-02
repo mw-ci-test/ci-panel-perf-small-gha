@@ -1,0 +1,29 @@
+# CI Panel performance test data: the only workflow in the small repo.
+# Frozen data. Do not add push/pull_request/schedule triggers or re-run jobs.
+# See README.md before changing anything.
+name: Perf Workflow 01
+
+on:
+  workflow_dispatch:
+
+jobs:
+  shard:
+    name: shard-${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - name: Run shard
+        run: |
+          mkdir -p out
+          echo "workflow=01 shard=${{ matrix.shard }} run=${{ github.run_number }}" > out/result.txt
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: out/
+          retention-days: 1
